@@ -6,7 +6,7 @@ Before you get started you will want to register your extension in the [Muxy Das
 
 ## Getting Started
 
-Simply copy the GameLink folder into your project.
+Simply copy the files from this repo into your project.
 
 You will need your own JSON library and Websocket library to properly use GameLink.
 
