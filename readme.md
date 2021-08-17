@@ -2,7 +2,7 @@
 
 ## Requirements
 
-Before you get started you will want to register your extension at (dev.muxy.io)
+Before you get started you will want to register your extension in the [Muxy Dashboard](dev.muxy.io)
 
 ## Getting Started
 
