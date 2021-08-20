@@ -79,7 +79,7 @@ namespace MuxyGameLink
         }
 
         /// <summary> Gets First Error for AuthenticationResponse </summary>
-        /// <returns> NULL if there is no error, other wise error information </returns>
+        /// <returns> NULL if there is no error, otherwise error information </returns>
         public Error GetFirstError()
         {
             NativeError Err = Imported.Schema_GetFirstError(this.Object.Obj);
@@ -133,7 +133,7 @@ namespace MuxyGameLink
             this.Object = Obj;
         }
         /// <summary> Gets First Error for DatastreamUpdate </summary>
-        /// <returns> NULL if there is no error, other wise error information </returns>
+        /// <returns> NULL if there is no error, otherwise error information </returns>
         public Error GetFirstError()
         {
             NativeError Err = Imported.Schema_GetFirstError(this.Object.Obj);
@@ -168,7 +168,7 @@ namespace MuxyGameLink
             this.Object = Obj;
         }
         /// <summary> Gets First Error for TwitchPurchaseBits </summary>
-        /// <returns> NULL if there is no error, other wise error information </returns>
+        /// <returns> NULL if there is no error, otherwise error information </returns>
         public Error GetFirstError()
         {
             NativeError Err = Imported.Schema_GetFirstError(this.Object.Obj);
@@ -290,7 +290,7 @@ namespace MuxyGameLink
             this.Object = Obj;
         }
         /// <summary> Gets First Error for StateResponse </summary>
-        /// <returns> NULL if there is no error, other wise error information </returns>
+        /// <returns> NULL if there is no error, otherwise error information </returns>
         public Error GetFirstError()
         {
             NativeError Err = Imported.Schema_GetFirstError(this.Object.Obj);
@@ -324,7 +324,7 @@ namespace MuxyGameLink
             this.Object = Obj;
         }
         /// <summary> Gets First Error for StateUpdate </summary>
-        /// <returns> NULL if there is no error, other wise error information </returns>
+        /// <returns> NULL if there is no error, otherwise error information </returns>
         public Error GetFirstError()
         {
             NativeError Err = Imported.Schema_GetFirstError(this.Object.Obj);
@@ -372,7 +372,7 @@ namespace MuxyGameLink
         }
 
         /// <summary> Gets First Error for ConfigResponse </summary>
-        /// <returns> NULL if there is no error, other wise error information </returns>
+        /// <returns> NULL if there is no error, otherwise error information </returns>
         public Error GetFirstError()
         {
             NativeError Err = Imported.Schema_GetFirstError(this.Object.Obj);
@@ -421,7 +421,7 @@ namespace MuxyGameLink
         }
 
         /// <summary> Gets First Error for ConfigUpdate </summary>
-        /// <returns> NULL if there is no error, other wise error information </returns>
+        /// <returns> NULL if there is no error, otherwise error information </returns>
         public Error GetFirstError()
         {
             NativeError Err = Imported.Schema_GetFirstError(this.Object.Obj);
@@ -470,7 +470,7 @@ namespace MuxyGameLink
             this.Object = Obj;
         }
         /// <summary> Gets First Error for GetPollResponse </summary>
-        /// <returns> NULL if there is no error, other wise error information </returns>
+        /// <returns> NULL if there is no error, otherwise error information </returns>
         public Error GetFirstError()
         {
             NativeError Err = Imported.Schema_GetFirstError(this.Object.Obj);
@@ -570,7 +570,7 @@ namespace MuxyGameLink
             this.Object = Obj;
         }
         /// <summary> Gets First Error for PollUpdateResponse </summary>
-        /// <returns> NULL if there is no error, other wise error information </returns>
+        /// <returns> NULL if there is no error, otherwise error information </returns>
         public Error GetFirstError()
         {
             NativeError Err = Imported.Schema_GetFirstError(this.Object.Obj);
