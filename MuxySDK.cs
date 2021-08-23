@@ -116,8 +116,8 @@ namespace MuxyGameLink
         }
 
         public delegate void PayloadCallback(string Payload);
-        /// <summary> Receive message for processing </summary>
-        /// <param name="Message"> Message to be proccesed, commonly comes right from a Websocket </param>
+        /// <summary> Calls given callback on each payload waiting to be sent, generally used to send the payload through a Websocket </summary>
+        /// <param name="Callback"> Callback to be called on each iteration </param>
         public void ForEachPayload(PayloadCallback Callback)
         {
             PayloadDelegate WrapperCallback = ((UserData, Payload) =>
@@ -146,9 +146,9 @@ namespace MuxyGameLink
         }
 
         public delegate void GetStateCallback(StateResponse Response);
-        /// <summary> Set target state with JSON </summary>
+        /// <summary> Get target state </summary>
         /// <param name="Target"> Either STATE_TARGET_CHANNEL or STATE_TARGET_EXTENSION </param>
-        /// <param name="Json"> Json message to be stored in state </param>
+        /// <param name="Callback"> Callback to be called with state info</param>
         /// <returns> RequestId </returns>
         public UInt16 GetState(string Target, GetStateCallback Callback)
         {
@@ -280,7 +280,7 @@ namespace MuxyGameLink
         public delegate void GetChannelCallback(ConfigResponse Response);
         /// <summary> Get channel config </summary>
         /// <param name="Target"> Either STATE_TARGET_CHANNEL or STATE_TARGET_EXTENSION </param>
-        /// <param name="Callback"> Callback to be called </param>
+        /// <param name="Callback"> Callback to be called to receive config data </param>
         /// <returns> RequestId </returns>
         public UInt16 GetChannelConfig(string Target, GetChannelCallback Callback)
         {
