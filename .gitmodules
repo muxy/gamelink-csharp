@@ -1,0 +1,3 @@
+[submodule "gamelink-cpp"]
+	path = gamelink-cpp
+	url = git@bitbucket.org:muxy/gamelink-cpp.git
