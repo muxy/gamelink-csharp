@@ -13,12 +13,8 @@ jobs:
         submodules: 'recursive'
     - name: 'Build DLL'
       run: |
-        mkdir build
-        cd build
-        cmake -Ax64 ../gamelink-cpp
-        cmake --build . --target cgamelink --config Release --parallel 8
-        copy "Release\cgamelink.dll" ..
-        cd ..
+        ./build-scripts/android.ps1
+        ./build-scripts/windows-64.ps1
     - name: 'Upload Artifact'
       uses: actions/upload-artifact@v2
       with:
