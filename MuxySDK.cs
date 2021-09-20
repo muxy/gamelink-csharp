@@ -523,7 +523,7 @@ namespace MuxyGameLink
         }
 
         public delegate void GetOutstandingTransactionsCallback(GetOutstandingTransactionsResponse Response);
-        /// <summary> Get all outstanding transactions that need verification </summary>
+        /// <summary> Get all outstanding transactions that need validation </summary>
         /// <param name="SKU"> SKU to get outstanding transactions for </param>
         /// <param name="Callback"> Callback to receive transactions info </param>
         /// <returns> RequestId </returns>
@@ -537,33 +537,6 @@ namespace MuxyGameLink
 
             UInt16 Result = Imported.GetOutstandingTransactions(this.Instance, SKU, WrapperCallback, IntPtr.Zero);
             return Result;
-        }
-
-        /// <summary> Refund transaction by SKU </summary>
-        /// <param name="SKU"> SKU for refunding </param>
-        /// <param name="UserId"> UserId to receive refund </param>
-        /// <returns> RequestId </returns>
-        public UInt16 RefundTransactionBySKU(String SKU, String UserId)
-        {
-            return Imported.RefundTransactionBySKU(this.Instance, SKU, UserId);
-        }
-
-        /// <summary> Refund transaction by ID </summary>
-        /// <param name="TxId"> TransactionId for refunding </param>
-        /// <param name="UserId"> UserId to receive refund </param>
-        /// <returns> RequestId </returns>
-        public UInt16 RefundTransactionByID(String TxId, String UserId)
-        {
-            return Imported.RefundTransactionByID(this.Instance, SKU, UserId);
-        }
-
-        /// <summary> Validate given transaction </summary>
-        /// <param name="TxId"> TransactionId to validate </param>
-        /// <param name="Details"> Details about the validation </param>
-        /// <returns> RequestId </returns>
-        public UInt16 ValidateTransaction(String TxId, String Details)
-        {
-            return Imported.ValidateTransaction(this.Instance, SKU, UserId);
         }
 
         #endregion

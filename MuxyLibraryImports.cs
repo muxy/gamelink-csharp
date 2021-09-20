@@ -375,10 +375,10 @@ namespace MuxyGameLink.Imports
 
         [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_GetOutstandingTransactions")]
         public static extern RequestId GetOutstandingTransactions(SDKInstance GameLink, String SKU, Schema.GetOutstandingTransactionsResponse Resp, IntPtr UserData);
-        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_Schema_GetOutstandingTransactions_GetTransactionCount")]
-        public static extern UInt32 Schema_GetOutstandingTransactions_GetTransactionCount(Schema.GetOutstandingTransactionsResponse Resp);
-        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_Schema_GetOutstandingTransactions_GetTransactionAt")]
-        public static extern TransactionResponse Schema_GetOutstandingTransactions_GetTransactionAt(Schema.GetOutstandingTransactionsResponse Resp, UInt32 Index);
+        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_Schema_GetOutstandingTransactionsResponse_GetTransactionCount")]
+        public static extern UInt32 Schema_GetOutstandingTransactionsResponse_GetTransactionCount(Schema.GetOutstandingTransactionsResponse Resp);
+        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_Schema_GetOutstandingTransactionsResponse_GetTransactionAt")]
+        public static extern Schema.TransactionResponse Schema_GetOutstandingTransactionsResponse_GetTransactionAt(Schema.GetOutstandingTransactionsResponse Resp, UInt32 Index);
         [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_RefundTransactionBySKU")]
         public static extern RequestId RefundTransactionBySKU(SDKInstance GameLink, String SKU, String UserId);
         [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_RefundTransactionByID")]

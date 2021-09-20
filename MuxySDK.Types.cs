@@ -280,6 +280,16 @@ namespace MuxyGameLink
         }
         private string CachedAdditionalJson;
 
+        public UInt16 Refund()
+        {
+            return Imported.RefundTransactionByID(this.Instance, this.Id, this.UserId);
+        }
+
+        public UInt16 Validate(String Details)
+        {
+            return Imported.ValidateTransaction(this.Instance, this.Id, Details);
+        }
+
         private Imports.Schema.TransactionResponse Object;
     }
 
