@@ -51,12 +51,17 @@ namespace MuxyGameLink.Imports
             public IntPtr Obj;
         };
 
-        public struct TwitchPurchaseBitsResponse
+        public struct TransactionResponse
         {
             public IntPtr Obj;
         };
 
         public struct GetPollResponse
+        {
+            public IntPtr Obj;
+        }
+
+        public struct GetOutstandingTransactionsResponse
         {
             public IntPtr Obj;
         }
@@ -128,7 +133,8 @@ namespace MuxyGameLink.Imports
     public delegate void AuthenticateResponseDelegate(VoidPtr UserData, Schema.AuthenticateResponse AuthResp);
     public delegate void PayloadDelegate(VoidPtr UserData, Payload Payload);
     public delegate void DatastreamUpdateDelegate(VoidPtr UserData, Schema.DatastreamUpdate DatastreamUpdate);
-    public delegate void TwitchPurchaseBitsResponseDelegate(VoidPtr UserData, Schema.TwitchPurchaseBitsResponse TPBResp);
+    public delegate void TransactionResponseDelegate(VoidPtr UserData, Schema.TransactionResponse TPBResp);
+    public delegate void GetOutstandingTransactionsDelegate(VoidPtr UserData, Schema.GetOutstandingTransactionsResponse Resp);
 
     public delegate void DebugMessageDelegate(VoidPtr UserData, [MarshalAs(UnmanagedType.LPStr)] String Message);
 
@@ -336,7 +342,7 @@ namespace MuxyGameLink.Imports
         public static extern Int64 Schema_DatastreamEvent_GetTimestamp(Schema.DatastreamEvent DatastreamEvent);
         #endregion
 
-        #region Bits
+        #region Transactions
         [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_SubscribeToSKU")]
         public static extern UInt16 SubscribeToSKU(SDKInstance GameLink, String SKU);
         [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_UnsubscribeFromSKU")]
@@ -345,27 +351,40 @@ namespace MuxyGameLink.Imports
         public static extern UInt16 SubscribeToAllPurchases(SDKInstance GameLink);
         [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_UnsubscribeFromAllPurchases")]
         public static extern UInt16 UnsubscribeFromAllPurchases(SDKInstance GameLink);
-        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_OnTwitchPurchaseBits")]
-        public static extern UInt32 OnTwitchPurchaseBits(SDKInstance GameLink, TwitchPurchaseBitsResponseDelegate Callback, IntPtr UserData);
-        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_DetachOnTwitchPurchaseBits")]
-        public static extern void DetachOnTwitchPurchaseBits(SDKInstance GameLink, UInt32 id);
+        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_OnTransaction")]
+        public static extern UInt32 OnTransaction(SDKInstance GameLink, TransactionResponseDelegate Callback, IntPtr UserData);
+        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_DetachOnTransaction")]
+        public static extern void DetachOnTransaction(SDKInstance GameLink, UInt32 id);
 
-        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_Schema_TwitchPurchaseBits_GetId")]
-        public static extern StringPtr Schema_TwitchPurchaseBits_GetId(Schema.TwitchPurchaseBitsResponse TPBResp);
-        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_Schema_TwitchPurchaseBits_GetSKU")]
-        public static extern StringPtr Schema_TwitchPurchaseBits_GetSKU(Schema.TwitchPurchaseBitsResponse TPBResp);
-        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_Schema_TwitchPurchaseBits_GetDisplayName")]
-        public static extern StringPtr Schema_TwitchPurchaseBits_GetDisplayName(Schema.TwitchPurchaseBitsResponse TPBResp);
-        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_Schema_TwitchPurchaseBits_GetUserId")]
-        public static extern StringPtr Schema_TwitchPurchaseBits_GetUserId(Schema.TwitchPurchaseBitsResponse TPBResp);
-        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_Schema_TwitchPurchaseBits_GetUserName")]
-        public static extern StringPtr Schema_TwitchPurchaseBits_GetUserName(Schema.TwitchPurchaseBitsResponse TPBResp);
-        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_Schema_TwitchPurchaseBits_GetCost")]
-        public static extern Int32 Schema_TwitchPurchaseBits_GetCost(Schema.TwitchPurchaseBitsResponse TPBResp);
-        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_Schema_TwitchPurchaseBits_GetTimestamp")]
-        public static extern Int64 Schema_TwitchPurchaseBits_GetTimestamp(Schema.TwitchPurchaseBitsResponse TPBResp);
-        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_Schema_TwitchPurchaseBits_GetAdditionalJson")]
-        public static extern AllocatedStringPtr Schema_TwitchPurchaseBits_GetAdditionalJson(Schema.TwitchPurchaseBitsResponse TPBResp);
+        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_Schema_Transaction_GetId")]
+        public static extern StringPtr Schema_Transaction_GetId(Schema.TransactionResponse TPBResp);
+        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_Schema_Transaction_GetSKU")]
+        public static extern StringPtr Schema_Transaction_GetSKU(Schema.TransactionResponse TPBResp);
+        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_Schema_Transaction_GetDisplayName")]
+        public static extern StringPtr Schema_Transaction_GetDisplayName(Schema.TransactionResponse TPBResp);
+        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_Schema_Transaction_GetUserId")]
+        public static extern StringPtr Schema_Transaction_GetUserId(Schema.TransactionResponse TPBResp);
+        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_Schema_Transaction_GetUserName")]
+        public static extern StringPtr Schema_Transaction_GetUserName(Schema.TransactionResponse TPBResp);
+        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_Schema_Transaction_GetCost")]
+        public static extern Int32 Schema_Transaction_GetCost(Schema.TransactionResponse TPBResp);
+        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_Schema_Transaction_GetTimestamp")]
+        public static extern Int64 Schema_Transaction_GetTimestamp(Schema.TransactionResponse TPBResp);
+        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_Schema_Transaction_GetAdditionalJson")]
+        public static extern AllocatedStringPtr Schema_Transaction_GetAdditionalJson(Schema.TransactionResponse TPBResp);
+
+        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_GetOutstandingTransactions")]
+        public static extern RequestId GetOutstandingTransactions(SDKInstance GameLink, String SKU, Schema.GetOutstandingTransactionsResponse Resp, IntPtr UserData);
+        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_Schema_GetOutstandingTransactions_GetTransactionCount")]
+        public static extern UInt32 Schema_GetOutstandingTransactions_GetTransactionCount(Schema.GetOutstandingTransactionsResponse Resp);
+        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_Schema_GetOutstandingTransactions_GetTransactionAt")]
+        public static extern TransactionResponse Schema_GetOutstandingTransactions_GetTransactionAt(Schema.GetOutstandingTransactionsResponse Resp, UInt32 Index);
+        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_RefundTransactionBySKU")]
+        public static extern RequestId RefundTransactionBySKU(SDKInstance GameLink, String SKU, String UserId);
+        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_RefundTransactionByID")]
+        public static extern RequestId RefundTransactionByID(SDKInstance GameLink, String TxId, String UserId);
+        [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_ValidateTransaction")]
+        public static extern RequestId ValidateTransaction(SDKInstance GameLink, String TxId, String Details);
         #endregion
 
         #region Polling 

@@ -28,7 +28,7 @@ namespace MuxyGameLink
             this.ClientId = ClientId;
 
             OnDatastreamHandles = new Dictionary<UInt32, GCHandle>();
-            OnTwitchPurchaseHandles = new Dictionary<UInt32, GCHandle>();
+            OnTransactionHandles = new Dictionary<UInt32, GCHandle>();
             OnStateUpdateHandles = new Dictionary<UInt32, GCHandle>();
             OnPollUpdateHandles = new Dictionary<UInt32, GCHandle>();
             OnConfigUpdateHandles = new Dictionary<UInt32, GCHandle>();
@@ -460,7 +460,7 @@ namespace MuxyGameLink
         #endregion
 
         #region Twitch Purchases
-        /// <summary> Subscribe to SKU, a callback must first be set with OnTwitchPurchaseBits </summary>
+        /// <summary> Subscribe to SKU, a callback must first be set with OnTransaction </summary>
         /// <param name="SKU"> SKU to subscribe to </param>
         /// <returns> RequestId </returns>
         public UInt16 SubscribeToSKU(string SKU)
@@ -490,37 +490,82 @@ namespace MuxyGameLink
             return Imported.UnsubscribeFromAllPurchases(this.Instance);
         }
 
-        public delegate void TwitchPurchaseBitsCallback(TwitchPurchaseBits Purchase);
+        public delegate void TransactionCallback(Transaction Purchase);
         /// <summary> Sets callback for Twitch Bit Purchasing, requires call to SubscribeToSKU or SubscribeToAllPurchases to begin receiving purchase updates </summary>
         /// <param name="Callback"> Callback that will be called when a purchase occurs </param>
         /// <returns> Handle to reference callback later for things like detaching </returns>
-        public UInt32 OnTwitchPurchaseBits(TwitchPurchaseBitsCallback Callback)
+        public UInt32 OnTransaction(TransactionCallback Callback)
         {
-            TwitchPurchaseBitsResponseDelegate WrapperCallback = ((IntPtr UserData, Imports.Schema.TwitchPurchaseBitsResponse Response) =>
+            TransactionResponseDelegate WrapperCallback = ((IntPtr UserData, Imports.Schema.TransactionResponse Response) =>
             {
-                TwitchPurchaseBits Converted = new TwitchPurchaseBits(Response);
+                Transaction Converted = new Transaction(Response);
                 Callback(Converted);
             });
 
             GCHandle Handle = GCHandle.Alloc(WrapperCallback, GCHandleType.Pinned);
-            UInt32 Result = Imported.OnTwitchPurchaseBits(this.Instance, WrapperCallback, IntPtr.Zero);
+            UInt32 Result = Imported.OnTransaction(this.Instance, WrapperCallback, IntPtr.Zero);
 
-            OnTwitchPurchaseHandles.Add(Result, Handle);
+            OnTransactionHandles.Add(Result, Handle);
             return Result;
         }
 
         /// <summary> Detach callback for Twitch Bit Purchases</summary>
-        /// <param name="Handle"> Handle given from OnTwitchPurchaseBits </param>
-        public void DetachOnTwitchPurchaseBits(UInt32 Handle)
+        /// <param name="Handle"> Handle given from OnTransaction </param>
+        public void DetachOnTransaction(UInt32 Handle)
         {
-            Imported.DetachOnTwitchPurchaseBits(this.Instance, Handle);
-            GCHandle GC = OnTwitchPurchaseHandles[Handle];
+            Imported.DetachOnTransaction(this.Instance, Handle);
+            GCHandle GC = OnTransactionHandles[Handle];
             if (GC != null)
             {
                 GC.Free();
-                OnTwitchPurchaseHandles.Remove(Handle);
+                OnTransactionHandles.Remove(Handle);
             }
         }
+
+        public delegate void GetOutstandingTransactionsCallback(GetOutstandingTransactionsResponse Response);
+        /// <summary> Get all outstanding transactions that need verification </summary>
+        /// <param name="SKU"> SKU to get outstanding transactions for </param>
+        /// <param name="Callback"> Callback to receive transactions info </param>
+        /// <returns> RequestId </returns>
+        public UInt16 GetOutstandingTransactions(String SKU, GetOutstandingTransactionsCallback Callback)
+        {
+            GetOutstandingTransactionsDelegate WrapperCallback = ((IntPtr UserData, Imports.Schema.GetOutstandingTransactionsResponse Response) =>
+            {
+                GetOutstandingTransactions Converted = new GetOutstandingTransactions(Response);
+                Callback(Converted);
+            });
+
+            UInt16 Result = Imported.GetOutstandingTransactions(this.Instance, SKU, WrapperCallback, IntPtr.Zero);
+            return Result;
+        }
+
+        /// <summary> Refund transaction by SKU </summary>
+        /// <param name="SKU"> SKU for refunding </param>
+        /// <param name="UserId"> UserId to receive refund </param>
+        /// <returns> RequestId </returns>
+        public UInt16 RefundTransactionBySKU(String SKU, String UserId)
+        {
+            return Imported.RefundTransactionBySKU(this.Instance, SKU, UserId);
+        }
+
+        /// <summary> Refund transaction by ID </summary>
+        /// <param name="TxId"> TransactionId for refunding </param>
+        /// <param name="UserId"> UserId to receive refund </param>
+        /// <returns> RequestId </returns>
+        public UInt16 RefundTransactionByID(String TxId, String UserId)
+        {
+            return Imported.RefundTransactionByID(this.Instance, SKU, UserId);
+        }
+
+        /// <summary> Validate given transaction </summary>
+        /// <param name="TxId"> TransactionId to validate </param>
+        /// <param name="Details"> Details about the validation </param>
+        /// <returns> RequestId </returns>
+        public UInt16 ValidateTransaction(String TxId, String Details)
+        {
+            return Imported.ValidateTransaction(this.Instance, SKU, UserId);
+        }
+
         #endregion
 
         #region Polling
@@ -642,7 +687,7 @@ namespace MuxyGameLink
 
         private GCHandle OnDebugMessageHandle;
         private Dictionary<UInt32, GCHandle> OnDatastreamHandles;
-        private Dictionary<UInt32, GCHandle> OnTwitchPurchaseHandles;
+        private Dictionary<UInt32, GCHandle> OnTransactionHandles;
         private Dictionary<UInt32, GCHandle> OnStateUpdateHandles;
         private Dictionary<UInt32, GCHandle> OnPollUpdateHandles;
         private Dictionary<UInt32, GCHandle> OnConfigUpdateHandles;
