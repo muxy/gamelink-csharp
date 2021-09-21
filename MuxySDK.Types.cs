@@ -280,16 +280,6 @@ namespace MuxyGameLink
         }
         private string CachedAdditionalJson;
 
-        public UInt16 Refund()
-        {
-            return Imported.RefundTransactionByID(this.Instance, this.Id, this.UserId);
-        }
-
-        public UInt16 Validate(String Details)
-        {
-            return Imported.ValidateTransaction(this.Instance, this.Id, Details);
-        }
-
         private Imports.Schema.TransactionResponse Object;
     }
 
@@ -316,13 +306,14 @@ namespace MuxyGameLink
         {
             get
             {
-                return Imported.Schema_GetOutstandingTransactions_GetTransactionCount(this.Object);
+                return Imported.Schema_GetOutstandingTransactionsResponse_GetTransactionCount(this.Object);
             }
         }
 
         public Transaction At(UInt32 Index)
         {
-            return Imported.Schema_GetOutstandingTransactions_GetTransactionAt(this.Object);
+            Transaction Trans = new Transaction(Imported.Schema_GetOutstandingTransactionsResponse_GetTransactionAt(this.Object, Index));
+            return Trans;
         }
 
         private Imports.Schema.GetOutstandingTransactionsResponse Object;

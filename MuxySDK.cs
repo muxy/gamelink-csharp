@@ -29,6 +29,7 @@ namespace MuxyGameLink
 
             OnDatastreamHandles = new Dictionary<UInt32, GCHandle>();
             OnTransactionHandles = new Dictionary<UInt32, GCHandle>();
+            OnGetOutstandingTransactionsHandles = new Dictionary<UInt32, GCHandle>();
             OnStateUpdateHandles = new Dictionary<UInt32, GCHandle>();
             OnPollUpdateHandles = new Dictionary<UInt32, GCHandle>();
             OnConfigUpdateHandles = new Dictionary<UInt32, GCHandle>();
@@ -522,21 +523,37 @@ namespace MuxyGameLink
             }
         }
 
-        public delegate void GetOutstandingTransactionsCallback(GetOutstandingTransactionsResponse Response);
+        public delegate void GetOutstandingTransactionsCallback(OutstandingTransactions Transactions);
         /// <summary> Get all outstanding transactions that need validation </summary>
         /// <param name="SKU"> SKU to get outstanding transactions for </param>
         /// <param name="Callback"> Callback to receive transactions info </param>
         /// <returns> RequestId </returns>
-        public UInt16 GetOutstandingTransactions(String SKU, GetOutstandingTransactionsCallback Callback)
+        public UInt32 GetOutstandingTransactions(String SKU, GetOutstandingTransactionsCallback Callback)
         {
             GetOutstandingTransactionsDelegate WrapperCallback = ((IntPtr UserData, Imports.Schema.GetOutstandingTransactionsResponse Response) =>
             {
-                GetOutstandingTransactions Converted = new GetOutstandingTransactions(Response);
+                OutstandingTransactions Converted = new OutstandingTransactions(Response);
                 Callback(Converted);
             });
-
-            UInt16 Result = Imported.GetOutstandingTransactions(this.Instance, SKU, WrapperCallback, IntPtr.Zero);
+            GCHandle Handle = GCHandle.Alloc(WrapperCallback, GCHandleType.Pinned);
+            UInt32 Result = Imported.GetOutstandingTransactions(this.Instance, SKU, WrapperCallback, IntPtr.Zero);
+            OnGetOutstandingTransactionsHandles.Add(Result, Handle);
             return Result;
+        }
+
+        public UInt16 RefundTransactionByID(String TxId, String UserId)
+        {
+            return Imported.RefundTransactionByID(this.Instance, TxId, UserId);
+        }
+
+        public UInt16 RefundTransactionBySKU(String SKU, String UserId)
+        {
+            return Imported.RefundTransactionBySKU(this.Instance, SKU, UserId);
+        }
+
+        public UInt16 ValidateTransaction(String TxId, String Details)
+        {
+            return Imported.ValidateTransaction(this.Instance, TxId, Details);
         }
 
         #endregion
@@ -661,6 +678,7 @@ namespace MuxyGameLink
         private GCHandle OnDebugMessageHandle;
         private Dictionary<UInt32, GCHandle> OnDatastreamHandles;
         private Dictionary<UInt32, GCHandle> OnTransactionHandles;
+        private Dictionary<UInt32, GCHandle> OnGetOutstandingTransactionsHandles;
         private Dictionary<UInt32, GCHandle> OnStateUpdateHandles;
         private Dictionary<UInt32, GCHandle> OnPollUpdateHandles;
         private Dictionary<UInt32, GCHandle> OnConfigUpdateHandles;
