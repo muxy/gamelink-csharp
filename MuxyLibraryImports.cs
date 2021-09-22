@@ -374,7 +374,7 @@ namespace MuxyGameLink.Imports
         public static extern AllocatedStringPtr Schema_Transaction_GetAdditionalJson(Schema.TransactionResponse TPBResp);
 
         [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_GetOutstandingTransactions")]
-        public static extern UInt32 GetOutstandingTransactions(SDKInstance GameLink, String SKU, GetOutstandingTransactionsDelegate Resp, IntPtr UserData);
+        public static extern RequestId GetOutstandingTransactions(SDKInstance GameLink, String SKU, GetOutstandingTransactionsDelegate Resp, IntPtr UserData);
         [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_Schema_GetOutstandingTransactionsResponse_GetTransactionCount")]
         public static extern UInt32 Schema_GetOutstandingTransactionsResponse_GetTransactionCount(Schema.GetOutstandingTransactionsResponse Resp);
         [DllImport("cgamelink.dll", EntryPoint = "MuxyGameLink_Schema_GetOutstandingTransactionsResponse_GetTransactionAt")]
