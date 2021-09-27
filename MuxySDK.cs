@@ -28,7 +28,7 @@ namespace MuxyGameLink
             this.ClientId = ClientId;
 
             OnDatastreamHandles = new Dictionary<UInt32, GCHandle>();
-            OnTwitchPurchaseHandles = new Dictionary<UInt32, GCHandle>();
+            OnTransactionHandles = new Dictionary<UInt32, GCHandle>();
             OnStateUpdateHandles = new Dictionary<UInt32, GCHandle>();
             OnPollUpdateHandles = new Dictionary<UInt32, GCHandle>();
             OnConfigUpdateHandles = new Dictionary<UInt32, GCHandle>();
@@ -54,17 +54,16 @@ namespace MuxyGameLink
         /// <returns> RequestId </returns>
         public UInt16 AuthenticateWithRefreshToken(string RefreshToken, AuthenticationCallback Callback)
         {
+            GCHandle Handle;
             AuthenticateResponseDelegate WrapperCallback = ((UserData, AuthResp) =>
             {
                 AuthenticationResponse Response = new AuthenticationResponse(AuthResp);
                 Callback(Response);
-
-                GCHandle WHandle = GCHandle.FromIntPtr(UserData);
-                WHandle.Free();
+                Handle.Free();
             });
 
-            GCHandle Handle = GCHandle.Alloc(WrapperCallback, GCHandleType.Pinned);
-            return Imported.AuthenticateWithRefreshToken(this.Instance, this.ClientId, RefreshToken, WrapperCallback, ((IntPtr)Handle));
+            Handle = GCHandle.Alloc(WrapperCallback, GCHandleType.Pinned);
+            return Imported.AuthenticateWithRefreshToken(this.Instance, this.ClientId, RefreshToken, WrapperCallback, IntPtr.Zero);
         }
 
         /// <summary> Authenticate with a PIN </summary>
@@ -73,17 +72,16 @@ namespace MuxyGameLink
         /// <returns> RequestId </returns>
         public UInt16 AuthenticateWithPIN(string PIN, AuthenticationCallback Callback)
         {
+            GCHandle Handle;
             AuthenticateResponseDelegate WrapperCallback = ((UserData, AuthResp) =>
             {
                 AuthenticationResponse Response = new AuthenticationResponse(AuthResp);
                 Callback(Response);
-
-                GCHandle WHandle = GCHandle.FromIntPtr(UserData);
-                WHandle.Free();
+                Handle.Free();
             });
 
-            GCHandle Handle = GCHandle.Alloc(WrapperCallback, GCHandleType.Pinned);
-            return Imported.AuthenticateWithPIN(this.Instance, this.ClientId, PIN, WrapperCallback, ((IntPtr)Handle));
+            Handle = GCHandle.Alloc(WrapperCallback, GCHandleType.Pinned);
+            return Imported.AuthenticateWithPIN(this.Instance, this.ClientId, PIN, WrapperCallback, IntPtr.Zero);
         }
 
         public User User
@@ -152,17 +150,16 @@ namespace MuxyGameLink
         /// <returns> RequestId </returns>
         public UInt16 GetState(string Target, GetStateCallback Callback)
         {
+            GCHandle Handle;
             StateGetDelegate WrapperCallback = ((UserData, StateResp) =>
             {
                 StateResponse Response = new StateResponse(StateResp);
                 Callback(Response);
-
-                GCHandle WHandle = GCHandle.FromIntPtr(UserData);
-                WHandle.Free();
+                Handle.Free();
             });
 
-            GCHandle Handle = GCHandle.Alloc(WrapperCallback, GCHandleType.Pinned);
-            return Imported.GetState(this.Instance, Target, WrapperCallback, ((IntPtr)Handle));
+            Handle = GCHandle.Alloc(WrapperCallback, GCHandleType.Pinned);
+            return Imported.GetState(this.Instance, Target, WrapperCallback, IntPtr.Zero);
         }
 
         /// <summary> Set target state with integer </summary>
@@ -284,17 +281,16 @@ namespace MuxyGameLink
         /// <returns> RequestId </returns>
         public UInt16 GetChannelConfig(string Target, GetChannelCallback Callback)
         {
+            GCHandle Handle;
             ConfigGetDelegate WrapperCallback = ((UserData, ConfigResp) =>
             {
                 ConfigResponse Response = new ConfigResponse(ConfigResp);
                 Callback(Response);
-
-                GCHandle InternalHandle = GCHandle.FromIntPtr(UserData);
-                InternalHandle.Free();
+                Handle.Free();
             });
 
-            GCHandle Handle = GCHandle.Alloc(WrapperCallback, GCHandleType.Pinned);
-            return Imported.GetConfig(this.Instance, Target, WrapperCallback, ((IntPtr)Handle));
+            Handle = GCHandle.Alloc(WrapperCallback, GCHandleType.Pinned);
+            return Imported.GetConfig(this.Instance, Target, WrapperCallback, IntPtr.Zero);
         }
 
         /// <summary> Update config with integer </summary>
@@ -460,7 +456,7 @@ namespace MuxyGameLink
         #endregion
 
         #region Twitch Purchases
-        /// <summary> Subscribe to SKU, a callback must first be set with OnTwitchPurchaseBits </summary>
+        /// <summary> Subscribe to SKU, a callback must first be set with OnTransaction </summary>
         /// <param name="SKU"> SKU to subscribe to </param>
         /// <returns> RequestId </returns>
         public UInt16 SubscribeToSKU(string SKU)
@@ -490,37 +486,83 @@ namespace MuxyGameLink
             return Imported.UnsubscribeFromAllPurchases(this.Instance);
         }
 
-        public delegate void TwitchPurchaseBitsCallback(TwitchPurchaseBits Purchase);
+        public delegate void TransactionCallback(Transaction Purchase);
         /// <summary> Sets callback for Twitch Bit Purchasing, requires call to SubscribeToSKU or SubscribeToAllPurchases to begin receiving purchase updates </summary>
         /// <param name="Callback"> Callback that will be called when a purchase occurs </param>
         /// <returns> Handle to reference callback later for things like detaching </returns>
-        public UInt32 OnTwitchPurchaseBits(TwitchPurchaseBitsCallback Callback)
+        public UInt32 OnTransaction(TransactionCallback Callback)
         {
-            TwitchPurchaseBitsResponseDelegate WrapperCallback = ((IntPtr UserData, Imports.Schema.TwitchPurchaseBitsResponse Response) =>
+            TransactionResponseDelegate WrapperCallback = ((IntPtr UserData, Imports.Schema.TransactionResponse Response) =>
             {
-                TwitchPurchaseBits Converted = new TwitchPurchaseBits(Response);
+                Transaction Converted = new Transaction(Response);
                 Callback(Converted);
             });
 
             GCHandle Handle = GCHandle.Alloc(WrapperCallback, GCHandleType.Pinned);
-            UInt32 Result = Imported.OnTwitchPurchaseBits(this.Instance, WrapperCallback, IntPtr.Zero);
+            UInt32 Result = Imported.OnTransaction(this.Instance, WrapperCallback, IntPtr.Zero);
 
-            OnTwitchPurchaseHandles.Add(Result, Handle);
+            OnTransactionHandles.Add(Result, Handle);
             return Result;
         }
 
         /// <summary> Detach callback for Twitch Bit Purchases</summary>
-        /// <param name="Handle"> Handle given from OnTwitchPurchaseBits </param>
-        public void DetachOnTwitchPurchaseBits(UInt32 Handle)
+        /// <param name="Handle"> Handle given from OnTransaction </param>
+        public void DetachOnTransaction(UInt32 Handle)
         {
-            Imported.DetachOnTwitchPurchaseBits(this.Instance, Handle);
-            GCHandle GC = OnTwitchPurchaseHandles[Handle];
+            Imported.DetachOnTransaction(this.Instance, Handle);
+            GCHandle GC = OnTransactionHandles[Handle];
             if (GC != null)
             {
                 GC.Free();
-                OnTwitchPurchaseHandles.Remove(Handle);
+                OnTransactionHandles.Remove(Handle);
             }
         }
+
+        public delegate void GetOutstandingTransactionsCallback(OutstandingTransactions Transactions);
+        /// <summary> Get all outstanding transactions that need validation </summary>
+        /// <param name="SKU"> SKU to get outstanding transactions for </param>
+        /// <param name="Callback"> Callback to receive transactions info </param>
+        /// <returns> RequestId </returns>
+        public UInt16 GetOutstandingTransactions(String SKU, GetOutstandingTransactionsCallback Callback)
+        {
+            GCHandle Handle;
+            GetOutstandingTransactionsDelegate WrapperCallback = ((IntPtr UserData, Imports.Schema.GetOutstandingTransactionsResponse Response) =>
+            {
+                OutstandingTransactions Converted = new OutstandingTransactions(Response);
+                Callback(Converted);
+                Handle.Free();
+            });
+            Handle = GCHandle.Alloc(WrapperCallback, GCHandleType.Pinned);
+            return Imported.GetOutstandingTransactions(this.Instance, SKU, WrapperCallback, IntPtr.Zero);
+        }
+
+        /// <summary> Refund given transaction for user </summary>
+        /// <param name="TxId"> TransactionId for refund </param>
+        /// <param name="UserId"> UserId to receive refund </param>
+        /// <returns> RequestId </returns>
+        public UInt16 RefundTransactionByID(String TxId, String UserId)
+        {
+            return Imported.RefundTransactionByID(this.Instance, TxId, UserId);
+        }
+
+        /// <summary> Refund given transaction for user </summary>
+        /// <param name="SKU"> SKU for refund </param>
+        /// <param name="UserId"> UserId to receive refund </param>
+        /// <returns> RequestId </returns>
+        public UInt16 RefundTransactionBySKU(String SKU, String UserId)
+        {
+            return Imported.RefundTransactionBySKU(this.Instance, SKU, UserId);
+        }
+
+        /// <summary> Validate given transaction </summary>
+        /// <param name="TxId"> TransactionId to validate </param>
+        /// <param name="Details"> Extra details for validation </param>
+        /// <returns> RequestId </returns>
+        public UInt16 ValidateTransaction(String TxId, String Details)
+        {
+            return Imported.ValidateTransaction(this.Instance, TxId, Details);
+        }
+
         #endregion
 
         #region Polling
@@ -565,14 +607,15 @@ namespace MuxyGameLink
         /// <returns> RequestId </returns>
         public UInt16 GetPoll(String PollId, GetPollCallback Callback)
         {
+            GCHandle Handle;
             GetPollResponseDelegate WrapperCallback = ((IntPtr UserData, Imports.Schema.GetPollResponse Response) =>
             {
                 GetPollResponse Converted = new GetPollResponse(Response);
                 Callback(Converted);
+                Handle.Free();
             });
-
-            UInt16 Result = Imported.GetPoll(this.Instance, PollId, WrapperCallback, IntPtr.Zero);
-            return Result;
+            Handle = GCHandle.Alloc(WrapperCallback, GCHandleType.Pinned);
+            return Imported.GetPoll(this.Instance, PollId, WrapperCallback, IntPtr.Zero);
         }
 
         public delegate void PollUpdateResponseCallback(PollUpdateResponse PResp);
@@ -642,7 +685,7 @@ namespace MuxyGameLink
 
         private GCHandle OnDebugMessageHandle;
         private Dictionary<UInt32, GCHandle> OnDatastreamHandles;
-        private Dictionary<UInt32, GCHandle> OnTwitchPurchaseHandles;
+        private Dictionary<UInt32, GCHandle> OnTransactionHandles;
         private Dictionary<UInt32, GCHandle> OnStateUpdateHandles;
         private Dictionary<UInt32, GCHandle> OnPollUpdateHandles;
         private Dictionary<UInt32, GCHandle> OnConfigUpdateHandles;

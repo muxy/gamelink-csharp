@@ -161,13 +161,13 @@ namespace MuxyGameLink
         private Imports.Schema.DatastreamUpdate Object;
     }
 
-    public class TwitchPurchaseBits
+    public class Transaction
     {
-        public TwitchPurchaseBits(Imports.Schema.TwitchPurchaseBitsResponse Obj)
+        public Transaction(Imports.Schema.TransactionResponse Obj)
         {
             this.Object = Obj;
         }
-        /// <summary> Gets First Error for TwitchPurchaseBits </summary>
+        /// <summary> Gets First Error for Transaction </summary>
         /// <returns> NULL if there is no error, otherwise error information </returns>
         public Error GetFirstError()
         {
@@ -186,7 +186,7 @@ namespace MuxyGameLink
             {
                 if (CachedId == null)
                 {
-                    CachedId = NativeString.StringFromUTF8(Imported.Schema_TwitchPurchaseBits_GetId(this.Object));
+                    CachedId = NativeString.StringFromUTF8(Imported.Schema_Transaction_GetId(this.Object));
                 }
 
                 return CachedId;
@@ -200,7 +200,7 @@ namespace MuxyGameLink
             {
                 if (CachedSKU == null)
                 {
-                    CachedSKU = NativeString.StringFromUTF8(Imported.Schema_TwitchPurchaseBits_GetSKU(this.Object));
+                    CachedSKU = NativeString.StringFromUTF8(Imported.Schema_Transaction_GetSKU(this.Object));
                 }
 
                 return CachedSKU;
@@ -214,7 +214,7 @@ namespace MuxyGameLink
             {
                 if (CachedDisplayName == null)
                 {
-                    CachedDisplayName = NativeString.StringFromUTF8(Imported.Schema_TwitchPurchaseBits_GetDisplayName(this.Object));
+                    CachedDisplayName = NativeString.StringFromUTF8(Imported.Schema_Transaction_GetDisplayName(this.Object));
                 }
 
                 return CachedDisplayName;
@@ -228,7 +228,7 @@ namespace MuxyGameLink
             {
                 if (CachedUserId == null)
                 {
-                    CachedUserId = NativeString.StringFromUTF8(Imported.Schema_TwitchPurchaseBits_GetUserId(this.Object));
+                    CachedUserId = NativeString.StringFromUTF8(Imported.Schema_Transaction_GetUserId(this.Object));
                 }
 
                 return CachedUserId;
@@ -242,7 +242,7 @@ namespace MuxyGameLink
             {
                 if (CachedUserName == null)
                 {
-                    CachedUserName = NativeString.StringFromUTF8(Imported.Schema_TwitchPurchaseBits_GetUserName(this.Object));
+                    CachedUserName = NativeString.StringFromUTF8(Imported.Schema_Transaction_GetUserName(this.Object));
                 }
 
                 return CachedUserName;
@@ -254,7 +254,7 @@ namespace MuxyGameLink
         {
             get
             {
-                return Imported.Schema_TwitchPurchaseBits_GetCost(this.Object);
+                return Imported.Schema_Transaction_GetCost(this.Object);
             }
         }
 
@@ -262,7 +262,7 @@ namespace MuxyGameLink
         {
             get
             {
-                return NativeTimestamp.DateTimeFromMilliseconds(Imported.Schema_TwitchPurchaseBits_GetTimestamp(this.Object));
+                return NativeTimestamp.DateTimeFromMilliseconds(Imported.Schema_Transaction_GetTimestamp(this.Object));
             }
         }
 
@@ -272,7 +272,7 @@ namespace MuxyGameLink
             {
                 if (CachedAdditionalJson == null)
                 {
-                    CachedAdditionalJson = NativeString.StringFromUTF8AndDeallocate(Imported.Schema_TwitchPurchaseBits_GetAdditionalJson(this.Object));
+                    CachedAdditionalJson = NativeString.StringFromUTF8AndDeallocate(Imported.Schema_Transaction_GetAdditionalJson(this.Object));
                 }
 
                 return CachedAdditionalJson;
@@ -280,7 +280,43 @@ namespace MuxyGameLink
         }
         private string CachedAdditionalJson;
 
-        private Imports.Schema.TwitchPurchaseBitsResponse Object;
+        private Imports.Schema.TransactionResponse Object;
+    }
+
+    public class OutstandingTransactions
+    {
+        public OutstandingTransactions(Imports.Schema.GetOutstandingTransactionsResponse Obj)
+        {
+            this.Object = Obj;
+        }
+        /// <summary> Gets First Error for GetOutstandingTransactionsResponse </summary>
+        /// <returns> NULL if there is no error, otherwise error information </returns>
+        public Error GetFirstError()
+        {
+            NativeError Err = Imported.Schema_GetFirstError(this.Object.Obj);
+            if (!Imported.Error_IsValid(Err))
+            {
+                return null;
+            }
+
+            return new Error(Err);
+        }
+
+        public UInt32 Count
+        {
+            get
+            {
+                return Imported.Schema_GetOutstandingTransactionsResponse_GetTransactionCount(this.Object);
+            }
+        }
+
+        public Transaction At(UInt32 Index)
+        {
+            Transaction Trans = new Transaction(Imported.Schema_GetOutstandingTransactionsResponse_GetTransactionAt(this.Object, Index));
+            return Trans;
+        }
+
+        private Imports.Schema.GetOutstandingTransactionsResponse Object;
     }
 
     public class StateResponse
