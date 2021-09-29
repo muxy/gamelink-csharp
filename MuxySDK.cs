@@ -274,12 +274,13 @@ namespace MuxyGameLink
             return Imported.SetChannelConfig(this.Instance, JsonLiteral);
         }
 
-        public delegate void GetChannelCallback(ConfigResponse Response);
-        /// <summary> Get channel config </summary>
+        public delegate void GetConfigCallback(ConfigResponse Response);
+
+        /// <summary> Get config </summary>
         /// <param name="Target"> Either STATE_TARGET_CHANNEL or STATE_TARGET_EXTENSION </param>
         /// <param name="Callback"> Callback to be called to receive config data </param>
         /// <returns> RequestId </returns>
-        public UInt16 GetChannelConfig(string Target, GetChannelCallback Callback)
+        public UInt16 GetConfig(string Target, GetConfigCallback Callback)
         {
             GCHandle Handle;
             ConfigGetDelegate WrapperCallback = ((UserData, ConfigResp) =>
@@ -294,55 +295,50 @@ namespace MuxyGameLink
         }
 
         /// <summary> Update config with integer </summary>
-        /// <param name="Target"> Either STATE_TARGET_CHANNEL or STATE_TARGET_EXTENSION </param>
         /// <param name="Operation"> Patch operation </param>
         /// <param name="Path"> Json Pointer </param>
         /// <param name="Value"> Integer to be set </param>
         /// <returns> RequestId </returns>
-        public UInt16 UpdateConfigWithInteger(string Target, string Operation, string Path, Int64 Value)
+        public UInt16 UpdateChannelConfigWithInteger(string Operation, string Path, Int64 Value)
         {
             return Imported.UpdateChannelConfigWithInteger(this.Instance, Operation, Path, Value);
         }
 
         /// <summary> Update config with double </summary>
-        /// <param name="Target"> Either STATE_TARGET_CHANNEL or STATE_TARGET_EXTENSION </param>
         /// <param name="Operation"> Patch operation </param>
         /// <param name="Path"> Json Pointer </param>
         /// <param name="Value"> Double to be set </param>
         /// <returns> RequestId </returns>
-        public UInt16 UpdateConfigWithDouble(string Target, string Operation, string Path, Double Value)
+        public UInt16 UpdateChannelConfigWithDouble(string Operation, string Path, Double Value)
         {
             return Imported.UpdateChannelConfigWithDouble(this.Instance, Operation, Path, Value);
         }
 
         /// <summary> Update config with string </summary>
-        /// <param name="Target"> Either STATE_TARGET_CHANNEL or STATE_TARGET_EXTENSION </param>
         /// <param name="Operation"> Patch operation </param>
         /// <param name="Path"> Json Pointer </param>
         /// <param name="Value"> String to be set </param>
         /// <returns> RequestId </returns>
-        public UInt16 UpdateConfigWithString(string Target, string Operation, string Path, string Value)
+        public UInt16 UpdateChannelConfigWithString(string Operation, string Path, string Value)
         {
             return Imported.UpdateChannelConfigWithString(this.Instance, Operation, Path, Value);
         }
 
         /// <summary> Update config with json literal </summary>
-        /// <param name="Target"> Either STATE_TARGET_CHANNEL or STATE_TARGET_EXTENSION </param>
         /// <param name="Operation"> Patch operation </param>
         /// <param name="Path"> Json Pointer </param>
         /// <param name="JsonLiteral"> Json literal to be set </param>
         /// <returns> RequestId </returns>
-        public UInt16 UpdateConfigWithLiteral(string Target, string Operation, string Path, string JsonLiteral)
+        public UInt16 UpdateChannelConfigWithLiteral(string Operation, string Path, string JsonLiteral)
         {
             return Imported.UpdateChannelConfigWithLiteral(this.Instance, Operation, Path, JsonLiteral);
         }
 
         /// <summary> Update config with null </summary>
-        /// <param name="Target"> Either STATE_TARGET_CHANNEL or STATE_TARGET_EXTENSION </param>
         /// <param name="Operation"> Patch operation </param>
         /// <param name="Path"> Json Pointer </param>
         /// <returns> RequestId </returns>
-        public UInt16 UpdateConfigWithNull(string Target, string Operation, string Path)
+        public UInt16 UpdateChannelConfigWithNull(string Operation, string Path)
         {
             return Imported.UpdateChannelConfigWithNull(this.Instance, Operation, Path);
         }
