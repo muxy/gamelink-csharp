@@ -42,6 +42,11 @@ namespace MuxyGameLink
             }
         }
 
+        public override string ToString()
+        {
+            return String.Format("Muxy GameLink Error: {0} ({1})", Title, Detail);
+        }
+
         private NativeError Object;
         private string CachedTitle;
         private string CachedDetail;
