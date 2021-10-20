@@ -1,97 +1,76 @@
 using System;
 using System.Runtime.InteropServices;
+using System.Collections.Generic;
 using MuxyGameLink.Imports;
 
 namespace MuxyGameLink
 {
     public enum Stage
     {
-        Production = 0, 
+        Production = 0,
         Sandbox = 1
     };
 
     public class Error
     {
-        public Error(NativeError err)
+        public Error(NativeError Obj)
         {
-            this.Object = err;
+            this._Title = NativeString.StringFromUTF8(Imported.Error_GetTitle(Obj));
+            this._Detail = NativeString.StringFromUTF8(Imported.Error_GetDetail(Obj));
         }
 
-        public string Title
+        private String _Title;
+        public String Title
         {
-            get
-            {
-                if (CachedTitle == null)
-                {
-                    CachedTitle = NativeString.StringFromUTF8(Imported.Error_GetTitle(this.Object));
-                }
-                return CachedTitle;
-            }
+            get => _Title;
         }
 
-        public string Detail
+        private String _Detail;
+        public String Detail
         {
-            get
-            {
-                if (CachedDetail == null)
-                {
-                    CachedDetail = NativeString.StringFromUTF8(Imported.Error_GetDetail(this.Object));
-                }
-
-                return CachedDetail;
-            }
+            get => _Detail;
         }
 
-        private NativeError Object;
-        private string CachedTitle;
-        private string CachedDetail;
+        public override string ToString()
+        {
+            return String.Format("Muxy GameLink Error: {0} ({1})", Title, Detail);
+        }
     }
 
     public class User
     {
         public User(Imports.Schema.User User)
         {
-            this.Object = User;
+            this._RefreshToken = NativeString.StringFromUTF8(Imported.Schema_User_GetRefreshToken(User));
         }
 
-        public string RefreshToken
+        private String _RefreshToken;
+        public String RefreshToken
         {
-            get
-            {
-                if (CachedRefreshToken == null)
-                {
-                    CachedRefreshToken = NativeString.StringFromUTF8(Imported.Schema_User_GetRefreshToken(this.Object));
-                }
-
-                return CachedRefreshToken;
-            }
+            get => _RefreshToken;
         }
-
-        private Imports.Schema.User Object;
-        private string CachedRefreshToken;
     }
 
     public class AuthenticationResponse
     {
-        public AuthenticationResponse(Imports.Schema.AuthenticateResponse resp)
+        public AuthenticationResponse(Imports.Schema.AuthenticateResponse Obj)
         {
-            this.Object = resp;
+            NativeError Err = Imported.Schema_GetFirstError(Obj.Obj);
+            if (Imported.Error_IsValid(Err))
+            {
+                this._FirstError = new Error(Err);
+                return;
+            }
         }
 
         /// <summary> Gets First Error for AuthenticationResponse </summary>
         /// <returns> NULL if there is no error, otherwise error information </returns>
+        private Error _FirstError = null;
         public Error GetFirstError()
         {
-            NativeError Err = Imported.Schema_GetFirstError(this.Object.Obj);
-            if (!Imported.Error_IsValid(Err))
-            {
-                return null;
-            }
-
-            return new Error(Err);
+            return _FirstError;
         }
 
-        private Imports.Schema.AuthenticateResponse Object;
     }
 
     public class DatastreamUpdate
@@ -100,601 +79,454 @@ namespace MuxyGameLink
         {
             public Event(Imports.Schema.DatastreamEvent Obj)
             {
-                this.Object = Obj;
-            } 
+                this._Json = NativeString.StringFromUTF8AndDeallocate(Imported.Schema_DatastreamEvent_GetJson(Obj));
+                this._Timestamp = Imported.Schema_DatastreamEvent_GetTimestamp(Obj);
+            }
 
+            private Int64 _Timestamp;
             public Int64 Timestamp
             {
-                get
-                {
-                    return Imported.Schema_DatastreamEvent_GetTimestamp(this.Object);
-                }
+                get => _Timestamp;
             }
 
+            private String _Json;
             public String Json
             {
-                get
-                {
-                    if (CachedJson == null)
-                    {
-                        CachedJson = NativeString.StringFromUTF8AndDeallocate(Imported.Schema_DatastreamEvent_GetJson(this.Object));
-                    }
-
-                    return CachedJson;
-                }
+                get => _Json;
             }
-
-            private String CachedJson;
-            private Imports.Schema.DatastreamEvent Object;
         }
 
         public DatastreamUpdate(Imports.Schema.DatastreamUpdate Obj)
         {
-            this.Object = Obj;
+            NativeError Err = Imported.Schema_GetFirstError(Obj.Obj);
+            if (Imported.Error_IsValid(Err))
+            {
+                this._FirstError = new Error(Err);
+                return;
+            }
+
+            for (UInt32 i = 0; i < Imported.Schema_DatastreamUpdate_GetEventCount(Obj); i++)
+            {
+                _Events.Add(new Event(Imported.Schema_DatastreamUpdate_GetEventAt(Obj, i)));
+            }
         }
         /// <summary> Gets First Error for DatastreamUpdate </summary>
         /// <returns> NULL if there is no error, otherwise error information </returns>
+        private Error _FirstError = null;
         public Error GetFirstError()
         {
-            NativeError Err = Imported.Schema_GetFirstError(this.Object.Obj);
-            if (!Imported.Error_IsValid(Err))
-            {
-                return null;
-            }
-
-            return new Error(Err);
+            return _FirstError;
         }
 
-        public Event At(UInt32 Index)
+        private List<Event> _Events = new List<Event>();
+        public List<Event> Events
         {
-            return new Event(Imported.Schema_DatastreamUpdate_GetEventAt(this.Object, Index));
+            get => _Events;
         }
-
-        public UInt32 Count
-        {
-            get
-            {
-                return Imported.Schema_DatastreamUpdate_GetEventCount(this.Object);
-            }
-        }
-
-        private Imports.Schema.DatastreamUpdate Object;
     }
 
     public class Transaction
     {
         public Transaction(Imports.Schema.TransactionResponse Obj)
         {
-            this.Object = Obj;
+            NativeError Err = Imported.Schema_GetFirstError(Obj.Obj);
+            if (Imported.Error_IsValid(Err))
+            {
+                this._FirstError = new Error(Err);
+                return;
+            }
+
+            this._Id = NativeString.StringFromUTF8(Imported.Schema_Transaction_GetId(Obj));
+            this._SKU = NativeString.StringFromUTF8(Imported.Schema_Transaction_GetSKU(Obj));
+            this._DisplayName = NativeString.StringFromUTF8(Imported.Schema_Transaction_GetDisplayName(Obj));
+            this._UserId = NativeString.StringFromUTF8(Imported.Schema_Transaction_GetUserId(Obj));
+            this._UserName = NativeString.StringFromUTF8(Imported.Schema_Transaction_GetUserName(Obj));
+            this._Cost = Imported.Schema_Transaction_GetCost(Obj);
+            this._Timestamp = NativeTimestamp.DateTimeFromMilliseconds(Imported.Schema_Transaction_GetTimestamp(Obj));
+            this._Json = NativeString.StringFromUTF8AndDeallocate(Imported.Schema_Transaction_GetAdditionalJson(Obj));
         }
+
         /// <summary> Gets First Error for Transaction </summary>
         /// <returns> NULL if there is no error, otherwise error information </returns>
+        private Error _FirstError = null;
         public Error GetFirstError()
         {
-            NativeError Err = Imported.Schema_GetFirstError(this.Object.Obj);
-            if (!Imported.Error_IsValid(Err))
-            {
-                return null;
-            }
-
-            return new Error(Err);
+            return _FirstError;
         }
 
-        public string Id
+        private String _Id;
+        public String Id
         {
-            get
-            {
-                if (CachedId == null)
-                {
-                    CachedId = NativeString.StringFromUTF8(Imported.Schema_Transaction_GetId(this.Object));
-                }
-
-                return CachedId;
-            }
+            get => _Id;
         }
-        private string CachedId;
 
-        public string SKU
+        private String _SKU;
+        public String SKU
         {
-            get
-            {
-                if (CachedSKU == null)
-                {
-                    CachedSKU = NativeString.StringFromUTF8(Imported.Schema_Transaction_GetSKU(this.Object));
-                }
-
-                return CachedSKU;
-            }
+            get => _SKU;
         }
-        private string CachedSKU;
 
-        public string DisplayName
+        private String _DisplayName;
+        public String DisplayName
         {
-            get
-            {
-                if (CachedDisplayName == null)
-                {
-                    CachedDisplayName = NativeString.StringFromUTF8(Imported.Schema_Transaction_GetDisplayName(this.Object));
-                }
-
-                return CachedDisplayName;
-            }
+            get => _DisplayName;
         }
-        private string CachedDisplayName;
 
-        public string UserId
+        private String _UserId;
+        public String UserId
         {
-            get
-            {
-                if (CachedUserId == null)
-                {
-                    CachedUserId = NativeString.StringFromUTF8(Imported.Schema_Transaction_GetUserId(this.Object));
-                }
-
-                return CachedUserId;
-            }
+            get => _UserId;
         }
-        private string CachedUserId;
 
-        public string UserName
+        private String _UserName;
+        public String UserName
         {
-            get
-            {
-                if (CachedUserName == null)
-                {
-                    CachedUserName = NativeString.StringFromUTF8(Imported.Schema_Transaction_GetUserName(this.Object));
-                }
-
-                return CachedUserName;
-            }
+            get => _UserName;
         }
-        private string CachedUserName;
 
+        private Int32 _Cost;
         public Int32 Cost
         {
-            get
-            {
-                return Imported.Schema_Transaction_GetCost(this.Object);
-            }
+            get => _Cost;
         }
 
+        private DateTime _Timestamp;
         public DateTime Timestamp
         {
-            get
-            {
-                return NativeTimestamp.DateTimeFromMilliseconds(Imported.Schema_Transaction_GetTimestamp(this.Object));
-            }
+            get => _Timestamp;
         }
 
-        public string AdditionalJson
+        private String _Json;
+        public String Json
         {
-            get
-            {
-                if (CachedAdditionalJson == null)
-                {
-                    CachedAdditionalJson = NativeString.StringFromUTF8AndDeallocate(Imported.Schema_Transaction_GetAdditionalJson(this.Object));
-                }
-
-                return CachedAdditionalJson;
-            }
+            get => _Json;
         }
-        private string CachedAdditionalJson;
 
-        private Imports.Schema.TransactionResponse Object;
     }
 
     public class OutstandingTransactions
     {
         public OutstandingTransactions(Imports.Schema.GetOutstandingTransactionsResponse Obj)
         {
-            this.Object = Obj;
+            NativeError Err = Imported.Schema_GetFirstError(Obj.Obj);
+            if (Imported.Error_IsValid(Err))
+            {
+                this._FirstError = new Error(Err);
+                return;
+            }
+
+            for (UInt32 i = 0; i < Imported.Schema_GetOutstandingTransactionsResponse_GetTransactionCount(Obj); i++)
+            {
+                _Transactions.Add(new Transaction(Imported.Schema_GetOutstandingTransactionsResponse_GetTransactionAt(Obj, i)));
+            }
+
         }
         /// <summary> Gets First Error for GetOutstandingTransactionsResponse </summary>
         /// <returns> NULL if there is no error, otherwise error information </returns>
+        private Error _FirstError = null;
         public Error GetFirstError()
         {
-            NativeError Err = Imported.Schema_GetFirstError(this.Object.Obj);
-            if (!Imported.Error_IsValid(Err))
-            {
-                return null;
-            }
-
-            return new Error(Err);
+            return _FirstError;
         }
 
-        public UInt32 Count
+        private List<Transaction> _Transactions = new List<Transaction>();
+        public List<Transaction> Transactions
         {
-            get
-            {
-                return Imported.Schema_GetOutstandingTransactionsResponse_GetTransactionCount(this.Object);
-            }
+            get => _Transactions;
         }
-
-        public Transaction At(UInt32 Index)
-        {
-            Transaction Trans = new Transaction(Imported.Schema_GetOutstandingTransactionsResponse_GetTransactionAt(this.Object, Index));
-            return Trans;
-        }
-
-        private Imports.Schema.GetOutstandingTransactionsResponse Object;
     }
 
     public class StateResponse
     {
         public StateResponse(Imports.Schema.StateResponse Obj)
         {
-            this.Object = Obj;
+            NativeError Err = Imported.Schema_GetFirstError(Obj.Obj);
+            if (Imported.Error_IsValid(Err))
+            {
+                this._FirstError = new Error(Err);
+                return;
+            }
+
+            this._Json = NativeString.StringFromUTF8AndDeallocate(Imported.Schema_StateResponse_GetJson(Obj));
         }
         /// <summary> Gets First Error for StateResponse </summary>
         /// <returns> NULL if there is no error, otherwise error information </returns>
+        private Error _FirstError = null;
         public Error GetFirstError()
         {
-            NativeError Err = Imported.Schema_GetFirstError(this.Object.Obj);
-            if (!Imported.Error_IsValid(Err))
-            {
-                return null;
-            }
-
-            return new Error(Err);
+            return _FirstError;
         }
+
+        private String _Json;
         public String Json
         {
-            get
-            {
-                if (CachedJson == null)
-                {
-                    CachedJson = NativeString.StringFromUTF8AndDeallocate(Imported.Schema_StateResponse_GetJson(this.Object));
-                }
-                return CachedJson;
-            }
+            get => _Json;
         }
-        private String CachedJson;
 
-        private Imports.Schema.StateResponse Object;
     }
 
     public class StateUpdate
     {
         public StateUpdate(Imports.Schema.StateUpdate Obj)
         {
-            this.Object = Obj;
+            NativeError Err = Imported.Schema_GetFirstError(Obj.Obj);
+            if (Imported.Error_IsValid(Err))
+            {
+                this._FirstError = new Error(Err);
+                return;
+            }
+
+            this._Target = NativeString.StringFromUTF8(Imported.Schema_StateUpdate_GetTarget(Obj));
+            this._Json = NativeString.StringFromUTF8AndDeallocate(Imported.Schema_StateUpdate_GetJson(Obj));
         }
+
         /// <summary> Gets First Error for StateUpdate </summary>
         /// <returns> NULL if there is no error, otherwise error information </returns>
+        private Error _FirstError = null;
         public Error GetFirstError()
         {
-            NativeError Err = Imported.Schema_GetFirstError(this.Object.Obj);
-            if (!Imported.Error_IsValid(Err))
-            {
-                return null;
-            }
-
-            return new Error(Err);
+            return _FirstError;
         }
+
+        private String _Target;
         public String Target
         {
-            get
-            {
-                if (CachedTarget == null)
-                {
-                    CachedTarget = NativeString.StringFromUTF8(Imported.Schema_StateUpdate_GetTarget(this.Object));
-                }
-                return CachedTarget;
-            }
+            get => _Target;
         }
-        private String CachedTarget;
 
+        private String _Json;
         public String Json
         {
-            get
-            {
-                if (CachedJson == null)
-                {
-                    CachedJson = NativeString.StringFromUTF8AndDeallocate(Imported.Schema_StateUpdate_GetJson(this.Object));
-                }
-                return CachedJson;
-            }
+            get => _Json;
         }
-        private String CachedJson;
 
-        private Imports.Schema.StateUpdate Object;
     }
 
     public class ConfigResponse
     {
         public ConfigResponse(Imports.Schema.ConfigResponse Obj)
         {
-            this.Object = Obj;
+            NativeError Err = Imported.Schema_GetFirstError(Obj.Obj);
+            if (Imported.Error_IsValid(Err))
+            {
+                this._FirstError = new Error(Err);
+                return;
+            }
+
+            this._ConfigId = NativeString.StringFromUTF8(Imported.Schema_ConfigResponse_GetConfigID(Obj));
+            this._Json = NativeString.StringFromUTF8AndDeallocate(Imported.Schema_ConfigResponse_GetJson(Obj));
         }
 
         /// <summary> Gets First Error for ConfigResponse </summary>
         /// <returns> NULL if there is no error, otherwise error information </returns>
+        private Error _FirstError = null;
         public Error GetFirstError()
         {
-            NativeError Err = Imported.Schema_GetFirstError(this.Object.Obj);
-            if (!Imported.Error_IsValid(Err))
-            {
-                return null;
-            }
-
-            return new Error(Err);
+            return _FirstError;
         }
 
+        private String _ConfigId;
         public String ConfigId
         {
-            get
-            {
-                if (CachedConfigId == null)
-                {
-                    CachedConfigId = NativeString.StringFromUTF8(Imported.Schema_ConfigResponse_GetConfigID(this.Object));
-                }
-                return CachedConfigId;
-            }
+            get => _ConfigId;
         }
-        private String CachedConfigId;
 
+        private String _Json;
         public String Json
         {
-            get
-            {
-                if (CachedJson == null)
-                {
-                    CachedJson = NativeString.StringFromUTF8AndDeallocate(Imported.Schema_ConfigResponse_GetJson(this.Object));
-                }
-                return CachedJson;
-            }
+            get => _Json;
         }
-        private String CachedJson;
-
-        private Imports.Schema.ConfigResponse Object;
     }
 
     public class ConfigUpdate
     {
         public ConfigUpdate(Imports.Schema.ConfigUpdate Obj)
         {
-            this.Object = Obj;
+            NativeError Err = Imported.Schema_GetFirstError(Obj.Obj);
+            if (Imported.Error_IsValid(Err))
+            {
+                this._FirstError = new Error(Err);
+                return;
+            }
+
+            this._ConfigId = NativeString.StringFromUTF8(Imported.Schema_ConfigUpdateResponse_GetConfigID(Obj));
+            this._Json = NativeString.StringFromUTF8AndDeallocate(Imported.Schema_ConfigUpdateResponse_GetJson(Obj));
         }
 
         /// <summary> Gets First Error for ConfigUpdate </summary>
         /// <returns> NULL if there is no error, otherwise error information </returns>
+        private Error _FirstError = null;
         public Error GetFirstError()
         {
-            NativeError Err = Imported.Schema_GetFirstError(this.Object.Obj);
-            if (!Imported.Error_IsValid(Err))
-            {
-                return null;
-            }
-
-            return new Error(Err);
+            return _FirstError;
         }
 
+        private String _ConfigId;
         public String ConfigId
         {
-            get
-            {
-                if (CachedConfigId == null)
-                {
-                    CachedConfigId = NativeString.StringFromUTF8(Imported.Schema_ConfigUpdateResponse_GetConfigID(this.Object));
-                }
-                return CachedConfigId;
-            }
+            get => _ConfigId;
         }
-        private String CachedConfigId;
 
+        private String _Json;
         public String Json
         {
-            get
-            {
-                if (CachedJson == null)
-                {
-                    CachedJson = NativeString.StringFromUTF8AndDeallocate(Imported.Schema_ConfigUpdateResponse_GetJson(this.Object));
-                }
-                return CachedJson;
-            }
+            get => _Json;
         }
-        private String CachedJson;
-
-
-        private Imports.Schema.ConfigUpdate Object;
     }
 
     public class GetPollResponse
     {
         public GetPollResponse(Imports.Schema.GetPollResponse Obj)
         {
-            this.Object = Obj;
+            NativeError Err = Imported.Schema_GetFirstError(Obj.Obj);
+            if (Imported.Error_IsValid(Err))
+            {
+                this._FirstError = new Error(Err);
+                return;
+            }
+
+            this._PollId = NativeString.StringFromUTF8(Imported.Schema_GetPollResponse_GetPollId(Obj));
+            this._Prompt = NativeString.StringFromUTF8(Imported.Schema_GetPollResponse_GetPrompt(Obj));
+            this._Mean = Imported.Schema_GetPollResponse_GetMean(Obj);
+            this._Sum = Imported.Schema_GetPollResponse_GetSum(Obj);
+            this._Count = Imported.Schema_GetPollResponse_GetCount(Obj);
+
+            for (UInt32 i = 0; i < Imported.Schema_GetPollResponse_GetOptionCount(Obj); i++)
+            {
+                Options.Add(NativeString.StringFromUTF8(Imported.Schema_GetPollResponse_GetOptionAt(Obj, i)));
+            }
+            for (UInt32 i = 0; i < Imported.Schema_GetPollResponse_GetResultCount(Obj); i++)
+            {
+                Results.Add(Imported.Schema_GetPollResponse_GetResultAt(Obj, i));
+            }
         }
         /// <summary> Gets First Error for GetPollResponse </summary>
         /// <returns> NULL if there is no error, otherwise error information </returns>
+        private Error _FirstError = null;
         public Error GetFirstError()
         {
-            NativeError Err = Imported.Schema_GetFirstError(this.Object.Obj);
-            if (!Imported.Error_IsValid(Err))
-            {
-                return null;
-            }
-
-            return new Error(Err);
+            return _FirstError;
         }
 
-        public string PollId
+        private String _PollId;
+        public String PollId
         {
-            get
-            {
-                if (CachedPollId == null)
-                {
-                    CachedPollId = NativeString.StringFromUTF8(Imported.Schema_GetPollResponse_GetPollId(this.Object));
-                }
-
-                return CachedPollId;
-            }
+            get => _PollId;
         }
-        private string CachedPollId;
 
-        public string Prompt
+        private String _Prompt;
+        public String Prompt
         {
-            get
-            {
-                if (CachedPrompt == null)
-                {
-                    CachedPrompt = NativeString.StringFromUTF8(Imported.Schema_GetPollResponse_GetPrompt(this.Object));
-                }
-
-                return CachedPrompt;
-            }
-        }
-        private string CachedPrompt;
-
-        public UInt32 OptionCount
-        {
-            get
-            {
-                return Imported.Schema_GetPollResponse_GetOptionCount(this.Object);
-            }
+            get => _Prompt;
         }
 
-        public String OptionAt(UInt32 Index)
-        {
-            return NativeString.StringFromUTF8(Imported.Schema_GetPollResponse_GetOptionAt(this.Object, Index));
-        }
-
-        public UInt32 ResultCount
-        {
-            get
-            {
-                return Imported.Schema_GetPollResponse_GetResultCount(this.Object);
-            }
-        }
-
-        public Int32 ResultAt(UInt32 Index)
-        {
-            return Imported.Schema_GetPollResponse_GetResultAt(this.Object, Index);
-        }
-
+        private double _Mean;
         public double Mean
         {
-            get
-            {
-                return Imported.Schema_GetPollResponse_GetMean(this.Object);
-            }
+            get => _Mean;
         }
 
+        private double _Sum;
         public double Sum
         {
-            get
-            {
-                return Imported.Schema_GetPollResponse_GetSum(this.Object);
-            }
+            get => _Sum;
         }
 
-        public double Count
+        private Int32 _Count;
+        public Int32 Count
         {
-            get
-            {
-                return Imported.Schema_GetPollResponse_GetCount(this.Object);
-            }
+            get => _Count;
         }
 
-        private Imports.Schema.GetPollResponse Object;
+        private List<String> _Options = new List<String>();
+        public List<String> Options
+        {
+            get => _Options;
+        }
+
+        private List<Int32> _Results = new List<Int32>();
+        public List<Int32> Results
+        {
+            get => _Results;
+        }
+
     }
 
     public class PollUpdateResponse
     {
         public PollUpdateResponse(Imports.Schema.PollUpdateResponse Obj)
         {
-            this.Object = Obj;
+            NativeError Err = Imported.Schema_GetFirstError(Obj.Obj);
+            if (Imported.Error_IsValid(Err))
+            {
+                this._FirstError = new Error(Err);
+                return;
+            }
+
+            this._PollId = NativeString.StringFromUTF8(Imported.Schema_PollUpdateResponse_GetPollId(Obj));
+            this._Prompt = NativeString.StringFromUTF8(Imported.Schema_PollUpdateResponse_GetPrompt(Obj));
+            this._Mean = Imported.Schema_PollUpdateResponse_GetMean(Obj);
+            this._Sum = Imported.Schema_PollUpdateResponse_GetSum(Obj);
+            this._Count = Imported.Schema_PollUpdateResponse_GetCount(Obj);
+
+            for (UInt32 i = 0; i < Imported.Schema_PollUpdateResponse_GetOptionCount(Obj); i++)
+            {
+                Options.Add(NativeString.StringFromUTF8(Imported.Schema_PollUpdateResponse_GetOptionAt(Obj, i)));
+            }
+            for (UInt32 i = 0; i < Imported.Schema_PollUpdateResponse_GetResultCount(Obj); i++)
+            {
+                Results.Add(Imported.Schema_PollUpdateResponse_GetResultAt(Obj, i));
+            }
         }
         /// <summary> Gets First Error for PollUpdateResponse </summary>
         /// <returns> NULL if there is no error, otherwise error information </returns>
+        private Error _FirstError = null;
         public Error GetFirstError()
         {
-            NativeError Err = Imported.Schema_GetFirstError(this.Object.Obj);
-            if (!Imported.Error_IsValid(Err))
-            {
-                return null;
-            }
-
-            return new Error(Err);
+            return _FirstError;
         }
-        public string PollId
+
+        private String _PollId;
+        public String PollId
         {
-            get
-            {
-                if (CachedPollId == null)
-                {
-                    CachedPollId = NativeString.StringFromUTF8(Imported.Schema_PollUpdateResponse_GetPollId(this.Object));
-                }
-
-                return CachedPollId;
-            }
+            get => _PollId;
         }
-        private string CachedPollId;
 
-        public string Prompt
+        private String _Prompt;
+        public String Prompt
         {
-            get
-            {
-                if (CachedPrompt == null)
-                {
-                    CachedPrompt = NativeString.StringFromUTF8(Imported.Schema_PollUpdateResponse_GetPrompt(this.Object));
-                }
-
-                return CachedPrompt;
-            }
-        }
-        private string CachedPrompt;
-
-        public UInt32 OptionCount
-        {
-            get
-            {
-                return Imported.Schema_PollUpdateResponse_GetOptionCount(this.Object);
-            }
+            get => _Prompt;
         }
 
-        public String OptionAt(UInt32 Index)
-        {
-            return NativeString.StringFromUTF8(Imported.Schema_PollUpdateResponse_GetOptionAt(this.Object, Index));
-        }
-
-        public UInt32 ResultCount
-        {
-            get
-            {
-                return Imported.Schema_PollUpdateResponse_GetResultCount(this.Object);
-            }
-        }
-
-        public Int32 ResultAt(UInt32 Index)
-        {
-            return Imported.Schema_PollUpdateResponse_GetResultAt(this.Object, Index);
-        }
-
+        private double _Mean;
         public double Mean
         {
-            get
-            {
-                return Imported.Schema_PollUpdateResponse_GetMean(this.Object);
-            }
+            get => _Mean;
         }
 
+        private double _Sum;
         public double Sum
         {
-            get
-            {
-                return Imported.Schema_PollUpdateResponse_GetSum(this.Object);
-            }
+            get => _Sum;
         }
 
-        public double Count
+        private Int32 _Count;
+        public Int32 Count
         {
-            get
-            {
-                return Imported.Schema_PollUpdateResponse_GetCount(this.Object);
-            }
+            get => _Count;
         }
 
-        private Imports.Schema.PollUpdateResponse Object;
+        private List<String> _Options = new List<String>();
+        public List<String> Options
+        {
+            get => _Options;
+        }
+
+        private List<Int32> _Results = new List<Int32>();
+        public List<Int32> Results
+        {
+            get => _Results;
+        }
+
     }
 }
